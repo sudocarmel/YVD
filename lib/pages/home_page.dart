@@ -423,59 +423,6 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
             spacing: 12,
             children: [
               Expanded(
-                flex: 1,
-                child: Container(
-                  padding: EdgeInsets.all(8),
-                  child: Container(
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey,
-                              offset: Offset(0, 0),
-                              spreadRadius: 0.2)
-                        ]),
-                    child: NavigationRail(
-                        onDestinationSelected: (index) {
-                          setState(() {
-                            selectedIndex = index;
-                          });
-                        },
-                        trailing: Column(
-                          children: [
-                            // NavigationDestination(
-                            //     icon: Icon(Icons.monetization_on),
-                            //     label: "Soutenir"),
-                            // NavigationDestination(
-                            //     icon: Icon(Icons.monetization_on),
-                            //     label: "Soutenir"),
-                            // NavigationDestination(
-                            //     icon: Icon(Icons.monetization_on),
-                            //     label: "Soutenir"),
-                          ],
-                        ),
-                        trailingAtBottom: true,
-                        extended: true,
-                        destinations: const [
-                          NavigationRailDestination(
-                              icon: Icon(Icons.home),
-                              label: Text(
-                                'Acceuil',
-                                style: TextStyle(color: Colors.black),
-                              )),
-                          NavigationRailDestination(
-                              icon: Icon(Icons.download_rounded),
-                              label: Text('Téléchargement')),
-                          NavigationRailDestination(
-                              icon: Icon(Icons.download_done_rounded),
-                              label: Text('Terminé')),
-                        ],
-                        selectedIndex: selectedIndex),
-                  ),
-                ),
-              ),
-              Expanded(
                 flex: 4,
                 child: Container(
                   padding: EdgeInsets.all(8),
