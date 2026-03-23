@@ -30,6 +30,8 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
   //etat de la recherche sur youtube
   double _progress = 0.0;
   bool _isDownloading = false;
+  bool isVideoDataWidgetvisible =
+      false; //controle de l'affichage des infos sur la video
   bool _videoFound = false;
   String error = "";
   String videoDestinationPath = "";
@@ -75,6 +77,8 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
       setState(() {
         if (e.toString().contains("Invalid argument")) {
           error = "L'URL entré n'est pas valide veuillez réesayer";
+        } else if (e.toString().contains("name resolution")) {
+          error = "Veuillez vérifier votre connection internet et réesayer";
         } else {
           error = e.toString();
         }
@@ -141,7 +145,9 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
                     onPressed: () async {
                       await selectPath();
                       if (videoDestinationPath.isNotEmpty) {
-                        moveForOrBackward(true);
+                        setState(() {
+                          _currentIndex++;
+                        });
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -210,6 +216,8 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
                         setState(() {
                           _currentIndex = 0;
                           setIsFirstLunch(false);
+                          isFirstLunching = false;
+                          moveForOrBackward(false);
                         });
                       },
                       style: ElevatedButton.styleFrom(
@@ -270,9 +278,7 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
       if (videoDestinationPath.isEmpty) {
         await selectPath();
       }
-      setState(() {
-        _isDownloading = true;
-      });
+
       var file = File('$videoDestinationPath/${videoMeta["title"]}.mp4');
       var fileStream = file.openWrite();
 
@@ -442,7 +448,7 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
     );
   }
 
-  bool _isVisible = false;
+  bool _isDownloadingWidgetVisible = false;
   //function area
   //Widget pour acceullir l'utilisateur et lui faire choisir un repertoire pour les téléchargement
   Widget welcomeUser() {
@@ -633,9 +639,8 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
-                      _isVisible = false;
-                      _isDownloading = false;
                       _textStatus = "Téléchargement annulé";
+                      isVideoDataWidgetvisible = false;
                     });
                   },
                   style: TextButton.styleFrom(
@@ -655,9 +660,9 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
                 flex: 1,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    print("hello do");
                     setState(() {
-                      _isVisible = false;
+                      isVideoDataWidgetvisible = false;
+                      _isDownloading = true;
                     });
                     initVideoDownload(_searchController.text);
                   },
@@ -681,7 +686,8 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
     );
   }
 
-  Widget downloadPopup() {
+  Widget showVideoDataWidget() {
+    //montre les données a propos de la video trouvé
     return Stack(
       children: [
         Positioned.fill(
@@ -721,7 +727,7 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
   void handleSubmit(String link) {
     setState(() {
       error = "";
-      _isVisible = true;
+      isVideoDataWidgetvisible = true;
       videoMeta = {
         "title": "",
         "author": "",
@@ -743,12 +749,14 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          Image.asset(
-            'assets/images/green_line.jpeg',
-            width: double.maxFinite,
-            colorBlendMode: BlendMode.darken,
-            color: const Color.fromARGB(178, 0, 0, 0),
-            fit: BoxFit.fill,
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/green_line.jpeg',
+              width: double.maxFinite,
+              colorBlendMode: BlendMode.darken,
+              color: const Color.fromARGB(178, 0, 0, 0),
+              fit: BoxFit.cover,
+            ),
           ),
           Container(
             //foreground
@@ -787,7 +795,7 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
                         ],
                       ),
                       Text(
-                        "Téléchargez aisément vos vidéo youtube",
+                        "Téléchargez aisément vos vidéos youtube",
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       )
                     ],
@@ -813,6 +821,7 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
                               Icons.forward,
                             ),
                             padding: EdgeInsets.zero,
+                            color: Colors.red,
                           ),
                           border: OutlineInputBorder(
                               borderSide: BorderSide.none,
@@ -902,7 +911,7 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
                 ),
               ),
             ),
-          if (_isVisible && error.isEmpty) downloadPopup(),
+          if (isVideoDataWidgetvisible && error.isEmpty) showVideoDataWidget(),
           if (isFirstLunching || showTutorial)
             Positioned.fill(child: welcomeUser()),
         ],
@@ -951,6 +960,7 @@ class _YoutubeDowloaderState extends State<YoutubeDowloader> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   setState(() {
+                    _currentIndex = 0;
                     showTutorial = !showTutorial;
                   });
                 },
