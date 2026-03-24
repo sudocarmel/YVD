@@ -1,0 +1,37 @@
+name: YVD
+
+on:
+  push:
+    branches: [ "main", "master" ]   # Déclenche sur push vers main/master
+  pull_request:
+    branches: [ "main", "master" ]   # Optionnel : sur PR
+  workflow_dispatch:                  # Permet un lancement manuel depuis l'interface GitHub
+
+jobs:
+  build:
+    runs-on: windows-latest           # Utilise un runner Windows
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'            # ou 'beta' selon vos besoins
+          flutter-version: '3.x'       # Vous pouvez spécifier une version exacte
+
+      - name: Vérifier l'installation
+        run: flutter doctor -v
+
+      - name: Récupérer les dépendances
+        run: flutter pub get
+
+      - name: Compiler pour Windows
+        run: flutter build windows --release
+
+      - name: Uploader l'artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: build\windows\x64\runner\Release\
